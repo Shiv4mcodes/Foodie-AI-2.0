@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodie-AI 2.0 | AI-Powered Healthy Food Recommendation Engine</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥗</text></svg>">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo-container">
+            <span class="logo-icon">🥗</span>
+            <div class="logo-text">Foodie-AI<span>   2.0</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="/login" id="admin-login-link">Admin Dashboard</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Parameter Selector Form -->
+        <section class="glass-card">
+            <h2>Parameters Panel</h2>
+            <form id="recommend-form">
+                <!-- Diet selection -->
+                <div class="form-group">
+                    <label class="form-label">Dietary Preference</label>
+                    <div class="segmented-control">
+                        <input type="radio" name="diet" id="diet-veg" value="Veg" checked>
+                        <label for="diet-veg">Vegetarian</label>
+                        
+                        <input type="radio" name="diet" id="diet-nonveg" value="Non-Veg">
+                        <label for="diet-nonveg">Non-Vegetarian</label>
+                    </div>
+                </div>
+
+                <!-- Health Goal selection -->
+                <div class="form-group">
+                    <label class="form-label">Health Goal Focus</label>
+                    <div class="segmented-control" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.35rem; background: rgba(10, 15, 30, 0.6); padding: 0.4rem;">
+                        <div>
+                            <input type="radio" name="goal" id="goal-none" value="General Wellness" checked>
+                            <label for="goal-none" style="display: block; width: 100%; padding: 0.6rem 0;">🌟 General</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="goal" id="goal-weightloss" value="Weight Loss">
+                            <label for="goal-weightloss" style="display: block; width: 100%; padding: 0.6rem 0;">🔥 Slim/Loss</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="goal" id="goal-musclegain" value="Muscle Gain">
+                            <label for="goal-musclegain" style="display: block; width: 100%; padding: 0.6rem 0;">💪 Muscle</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="goal" id="goal-diabetic" value="Diabetes-Friendly">
+                            <label for="goal-diabetic" style="display: block; width: 100%; padding: 0.6rem 0;">🩸 Diabetes</label>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <input type="radio" name="goal" id="goal-heart" value="Heart-Healthy">
+                            <label for="goal-heart" style="display: block; width: 100%; padding: 0.6rem 0;">❤️ Heart-Healthy</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cuisine Selection -->
+                <div class="form-group">
+                    <label class="form-label">Cuisine Type</label>
+                    <div class="cuisine-grid">
+                        <input type="radio" name="cuisine" id="cuisine-indian" value="Indian" checked>
+                        <label for="cuisine-indian" class="cuisine-card">
+                            <div>🇮🇳</div>
+                            <div style="margin-top: 4px;">Indian</div>
+                        </label>
+                        
+                        <input type="radio" name="cuisine" id="cuisine-italian" value="Italian">
+                        <label for="cuisine-italian" class="cuisine-card">
+                            <div>🇮🇹</div>
+                            <div style="margin-top: 4px;">Italian</div>
+                        </label>
+                        
+                        <input type="radio" name="cuisine" id="cuisine-chinese" value="Chinese">
+                        <label for="cuisine-chinese" class="cuisine-card">
+                            <div>🇨🇳</div>
+                            <div style="margin-top: 4px;">Chinese</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Taste Preference -->
+                <div class="form-group">
+                    <label class="form-label">Taste Profile</label>
+                    <div class="segmented-control taste-control">
+                        <input type="radio" name="taste" id="taste-spicy" value="Spicy" checked>
+                        <label for="taste-spicy">🌶️ Spicy</label>
+                        
+                        <input type="radio" name="taste" id="taste-sweet" value="Sweet">
+                        <label for="taste-sweet">🍯 Sweet</label>
+                    </div>
+                </div>
+
+                <!-- Calorie Slider -->
+                <div class="form-group">
+                    <label class="form-label">Calorie Limit</label>
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span>Max Calories</span>
+                            <span class="slider-val"><span id="cal-val">400</span> kcal</span>
+                        </div>
+                        <input type="range" name="calories" id="calories" min="100" max="700" step="10" value="400">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="btn-run-inference">Run Inference Engine</button>
+            </form>
+        </section>
+
+        <!-- Output & Recommendations -->
+        <section class="results-wrapper">
+            <!-- Trace Inference Logs -->
+            <div class="inference-log-panel">
+                <div class="inference-title">
+                    <span>⚙️</span> IF-THEN Inference Engine Trace Logs
+                </div>
+                <div id="log-entries">
+                    <div class="log-entry" style="color: var(--text-muted);">Configure parameters and hit 'Run Inference Engine' to see evaluations...</div>
+                </div>
+            </div>
+
+            <!-- Recommendations list -->
+            <div id="recommendations-container">
+                <div class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+                    <span style="font-size: 3rem;">🍽️</span>
+                    <h3 style="margin-top: 1rem; font-size: 1.4rem;">Awaiting Rules Evaluation</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.5rem; max-width: 320px; margin-left: auto; margin-right: auto;">Our rule engine will find healthy meals based on your criteria, falling back to alternative constraints as needed.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
