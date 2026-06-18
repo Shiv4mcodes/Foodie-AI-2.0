@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | AuraEat</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥗</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <span class="logo-icon">🥗</span>
+            <div class="logo-text">Aura<span>Eat</span></div>
+        </div>
+        <div class="nav-links">
+            <a href="/" id="back-home-link">← Back to Dashboard</a>
+        </div>
+    </header>
+
+    <div class="login-wrapper">
+        <div class="glass-card login-card">
+            <h2 style="justify-content: center; margin-bottom: 0.5rem;">🔒 Admin Access</h2>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.8rem;">Enter credentials to manage recipe database.</p>
+            
+            {% if error %}
+                <div class="login-error" id="login-error-msg">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form action="/login" method="POST" id="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" name="username" id="username" class="form-input" placeholder="Enter admin username" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" id="password" class="form-input" placeholder="Enter admin password" required>
+                </div>
+
+                <button type="submit" class="btn-primary" id="btn-login-submit">Login</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
