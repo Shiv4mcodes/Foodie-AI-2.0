@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Foodie-AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥗</text></svg>">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo-container">
+            <span class="logo-icon">🥗</span>
+            <div class="logo-text">Foodie-AI<span>2.0</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="/" style="margin-right: 0.5rem;" id="nav-home-link">View Site</a>
+            <a href="/logout" id="btn-logout">Logout ➔</a>
+        </div>
+    </header>
+
+    <main class="admin-grid" style="margin-top: 1rem;">
+        <!-- Left: Form to Add Recipe -->
+        <section class="glass-card">
+            <h2>Add Healthy Recipe</h2>
+            <form id="recipe-form">
+                <div class="form-group">
+                    <label for="name" class="form-label">Recipe Name</label>
+                    <input type="text" id="name" class="form-input" placeholder="e.g. Avocado Toast" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="diet" class="form-label">Diet Category</label>
+                        <select id="diet" class="form-input" required>
+                            <option value="Veg">Vegetarian</option>
+                            <option value="Non-Veg">Non-Vegetarian</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cuisine" class="form-label">Cuisine Type</label>
+                        <select id="cuisine" class="form-input" required>
+                            <option value="Indian">Indian</option>
+                            <option value="Italian">Italian</option>
+                            <option value="Chinese">Chinese</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="calories-input" class="form-label">Calories (kcal)</label>
+                        <input type="number" id="calories-input" class="form-input" min="50" max="1500" placeholder="e.g. 350" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taste" class="form-label">Taste Profile</label>
+                        <select id="taste" class="form-input" required>
+                            <option value="Spicy">Spicy</option>
+                            <option value="Sweet">Sweet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Macro Nutrition Fields -->
+                <label class="form-label">Macronutrients</label>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.8rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="number" id="protein" class="form-input" min="0" placeholder="Prot(g)" title="Protein (grams)" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="number" id="fiber" class="form-input" min="0" placeholder="Fib(g)" title="Fiber (grams)" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="number" id="carbs" class="form-input" min="0" placeholder="Carb(g)" title="Carbs (grams)" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="number" id="fat" class="form-input" min="0" placeholder="Fat(g)" title="Fat (grams)" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="health_goals" class="form-label">Health Goals (comma-separated)</label>
+                    <input type="text" id="health_goals" class="form-input" placeholder="e.g. Weight Loss, Heart-Healthy, Diabetes-Friendly, Muscle Gain" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="image_url" class="form-label">Image URL</label>
+                    <input type="url" id="image_url" class="form-input" placeholder="https://unsplash.com/..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ingredients" class="form-label">Ingredients (comma-separated)</label>
+                    <textarea id="ingredients" class="form-textarea" rows="3" placeholder="Ingredient 1, Ingredient 2, ..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="instructions" class="form-label">Preparation Instructions</label>
+                    <textarea id="instructions" class="form-textarea" rows="3" placeholder="Step-by-step prep details..." required></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="scientific_backing" class="form-label">Nutritional Backing & Authenticity</label>
+                    <textarea id="scientific_backing" class="form-textarea" rows="3" placeholder="Scientific studies, vitamin info, metabolic details..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary" id="btn-add-recipe-submit">Save Recipe to DB</button>
+            </form>
+        </section>
+
+        <!-- Right: Current Recipes List -->
+        <section class="glass-card">
+            <h2>Current Recipes Database</h2>
+            <div class="admin-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Diet</th>
+                            <th>Cuisine</th>
+                            <th>Calories</th>
+                            <th>Taste</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted);">Loading recipes list...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
