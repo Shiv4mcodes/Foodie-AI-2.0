@@ -1,0 +1,220 @@
+================================================================================
+AURA EAT: AI-POWERED HEALTHY FOOD RECOMMENDATION SYSTEM
+FULL-STACK SYSTEM DETAILS & PROJECT DOCUMENTATION
+================================================================================
+
+This document contains a comprehensive breakdown of the full-stack architecture, 
+database schemas, backend APIs, frontend styling, and the custom If-Then Inference 
+Rule Engine of the "AuraEat" food recommendation system. It is designed to prepare 
+you for potential evaluation questions, viva voce, or presentations.
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS:
+1. PROJECT OVERVIEW
+2. DATABASE LAYER (SQLite)
+3. BACKEND LAYER (Python & Flask)
+4. THE AI INFERENCE ENGINE (If-Then Rule Chain)
+5. FRONTEND LAYER (HTML5, CSS3, JavaScript)
+6. CRITICAL VIVA / PRESENTATION Q&A PREPARATION
+--------------------------------------------------------------------------------
+
+================================================================================
+1. PROJECT OVERVIEW
+================================================================================
+AuraEat is an intelligent, full-stack web application that acts as a personalized
+dietary recommendation assistant. 
+
+Unlike standard search filters that return "No results found" when constraints 
+are too tight, AuraEat implements a "Symbolic AI / Expert System" approach. It 
+runs an explicit cascading If-Then Inference Rule Engine that evaluates a user's
+dietary preference (Veg/Non-Veg), cuisine (Indian/Italian/Chinese), taste profile 
+(Spicy/Sweet), and maximum calories. If an exact match is impossible, the 
+engine systematically relaxes constraints in a logical sequence, logging its 
+logical deductions (trace logs) for transparency and explanations.
+
+Key Technical Stack:
+- Frontend: HTML5, Vanilla CSS3 (Glassmorphic Dark Mode), JavaScript (ES6 Fetch)
+- Backend: Python 3, Flask Web Server
+- Database: SQLite3 (Embedded Relational DB)
+- AI Model: Symbolic Rule-Based Inference Engine (Expert System)
+
+================================================================================
+2. DATABASE LAYER (SQLite)
+================================================================================
+The application utilizes SQLite, an in-process, self-contained, serverless 
+relational database engine. The database file is stored locally as `food.db`.
+
+Database Schema (`recipes` Table):
+--------------------------------------------------------------------------------
+Field Name          | Data Type | Constraints             | Description
+--------------------------------------------------------------------------------
+id                  | INTEGER   | PRIMARY KEY AUTOINCREMENT| Unique identifier for each recipe
+name                | TEXT      | NOT NULL                | Name of the food item
+diet                | TEXT      | NOT NULL                | Veg or Non-Veg
+cuisine             | TEXT      | NOT NULL                | Indian, Italian, or Chinese
+calories            | INTEGER   | NOT NULL                | Calorie count in kcal
+taste               | TEXT      | NOT NULL                | Spicy or Sweet
+ingredients         | TEXT      | NOT NULL                | Comma-separated list of ingredients
+instructions        | TEXT      | NOT NULL                | Step-by-step cooking steps
+scientific_backing  | TEXT      | NOT NULL                | Nutritional analysis & health benefits
+image_url           | TEXT      | NOT NULL                | Direct link to Unsplash food photo
+--------------------------------------------------------------------------------
+
+Initialization & Pre-Population:
+When the Flask server starts, it calls `init_db()`. If `food.db` does not exist 
+or the `recipes` table is empty, the database initializes the schema and inserts
+15 highly detailed, scientifically annotated healthy recipes.
+- Vegetarian items: 11
+- Non-Vegetarian items: 4
+- Calories range: 150 kcal to 420 kcal (all healthy limits)
+
+================================================================================
+3. BACKEND LAYER (Python & Flask)
+================================================================================
+The backend is powered by Python and Flask (`app.py`), acting as the routing 
+controller and hosting the logic for the rule engine.
+
+Session Security & Admin Controls:
+- Session-based admin login is implemented.
+- Default Username: `admin` | Default Password: `admin`.
+- When credentials are correct, `session['logged_in'] = True` is stored.
+- Secure pages `/admin` check `session.get('logged_in')` and redirect unauthorized 
+  users to the `/login` route.
+
+API Endpoints:
+--------------------------------------------------------------------------------
+Endpoint            | HTTP Method | Auth Required | Description
+--------------------------------------------------------------------------------
+/                   | GET         | No            | Renders the user-facing home page.
+/login              | GET/POST    | No            | Renders/processes admin login credentials.
+/logout             | GET         | No            | Clears user session and redirects to home.
+/admin              | GET         | Yes (Session) | Renders the recipe management console.
+/api/recommend      | POST        | No            | Receives user preferences (JSON) and executes 
+                    |             |               | the If-Then Inference Engine. Returns JSON of 
+                    |             |               | recommended recipes and trace logs.
+/api/admin/recipes  | GET         | Yes (Session) | Returns JSON list of all recipes in database.
+/api/admin/add      | POST        | Yes (Session) | Inserts a new recipe into the SQLite database.
+/api/admin/edit     | POST        | Yes (Session) | Updates an existing recipe record.
+/api/admin/delete/<id>| DELETE    | Yes (Session) | Deletes a recipe record by ID.
+--------------------------------------------------------------------------------
+
+================================================================================
+4. THE AI INFERENCE ENGINE (If-Then Rule Chain)
+================================================================================
+AuraEat uses a Symbolic AI pattern known as an "Expert System". It consists of a 
+**Knowledge Base** (the database of facts/recipes) and an **Inference Engine** 
+(cascading rules in `app.py`).
+
+In contrast to probabilistic machine learning models (like regression or neural 
+networks) which act as a "black box," a Rule Engine operates on explicit logic. 
+It guarantees explanation capabilities (explainable AI) by outputting trace logs 
+describing the reasoning process.
+
+Rule Evaluation Steps (Forward Chaining Sequence):
+--------------------------------------------------------------------------------
+* RULE 1: Exact Match
+  - Logic: IF diet = USER_DIET AND cuisine = USER_CUISINE AND taste = USER_TASTE AND calories <= USER_CALORIES
+  - Action: If matches exist, return them. Trace: "Rule 1 triggered. Found X exact match(es)."
+
+* RULE 2: Calorie Relaxation (Up to 25% overhead)
+  - Logic: IF Rule 1 fails, relax the calorie ceiling by multiplying USER_CALORIES by 1.25.
+  - Action: Query with relaxed calories. Trace: "Rule 2 triggered. Found X match(es) with relaxed calorie limits."
+
+* RULE 3: Taste Broadening (Alternative Taste)
+  - Logic: IF Rule 2 fails, search for the requested diet and cuisine, but accept ANY taste profile (Mild/Savory/Sweet/Spicy) within the original calorie limit.
+  - Action: Query ignoring taste restriction. Trace: "Rule 3 triggered. Found X match(es) by shifting taste preference."
+
+* RULE 4: Cuisine Generalization
+  - Logic: IF Rule 3 fails, search other cuisines for the same diet and taste within the original calorie limit.
+  - Action: Query ignoring cuisine restriction. Trace: "Rule 4 triggered. Found X match(es) in other cuisines."
+
+* RULE 5: Diet & Calorie Match (Global Fallback)
+  - Logic: IF Rule 4 fails, search for any recipe matching the user's diet under the original calorie limit.
+  - Action: Query ignoring cuisine and taste. Trace: "Rule 5 triggered. Found X fallback recipe(s)."
+
+* RULE 6: Absolute Lowest Calorie Recipe (Emergency Match)
+  - Logic: IF all else fails (e.g. user selected an extremely low calorie threshold), return the recipe with the absolute lowest calorie count matching their diet.
+  - Action: Query `SELECT * FROM recipes WHERE diet = ? ORDER BY calories ASC LIMIT 1`. Trace: "Rule 6 triggered. Recommending lowest calorie recipe: NAME (CALORIES kcal)."
+--------------------------------------------------------------------------------
+
+================================================================================
+5. FRONTEND LAYER (HTML5, CSS3, JavaScript)
+================================================================================
+The user interface is designed using modern styling philosophies to look premium 
+and responsive.
+
+Key Design Elements:
+- Glassmorphic Cards: Achieved using CSS backdrop filter blur effects (`backdrop-filter: blur(20px)`) 
+  and semi-transparent borders to allow background color elements to bleed through.
+- Theme: Dark slate backdrop with high-contrast emerald green (success/health) 
+  and amber orange (calories/warnings) color tokens.
+- Fonts: Imports Google Fonts "Outfit" for high-end digital typography.
+- Segmented Radio Inputs: Replaces default browser radio options with sleek, 
+  animated pill-shaped selections.
+- Responsive Grid Layouts: Flexible grid setups automatically collapse to a single 
+  column on tablets/mobile viewports.
+
+JavaScript Integration:
+- Submissions are fully asynchronous. JS intercepts the form submit event via 
+  `addEventListener('submit')`.
+- It posts the data payload using `fetch('/api/recommend')` containing JSON variables.
+- It parses the response to render:
+  1. The Trace Logs: Step-by-step console printouts showing which rules passed or failed.
+  2. The Recipe Cards: Programmatically generates HTML nodes containing image cards, 
+     nutrient tags, ingredients, instructions, and scientific backing sections.
+- Details Toggle: Allows users to expand/collapse recipe preparation details smoothly.
+
+================================================================================
+6. CRITICAL VIVA / PRESENTATION Q&A PREPARATION
+================================================================================
+
+Q1: Why is this considered an "AI" project? There is no Machine Learning model.
+A: AI is divided into two major historical groups: Connectionist AI (Machine 
+   Learning/Neural Networks) and Symbolic AI (Expert Systems/Knowledge-Based 
+   Systems). This project is a classic "Symbolic AI Expert System". It contains 
+   a Knowledge Base (recipe facts) and an Inference Engine (rules). It makes 
+   logical deductions instead of probabilistic predictions, offering 100% 
+   explainability (Explainable AI / XAI) which is critical in healthcare and 
+   clinical nutrition.
+
+Q2: Why did you choose SQLite over MySQL or PostgreSQL?
+A: SQLite is embedded and serverless. The entire database is stored in a single 
+   file (`food.db`) within the project folder. This eliminates the need for 
+   configuring external network ports, running database server processes, or 
+   managing complex user permissions, making the application highly portable and 
+   lightweight.
+
+Q3: What happens if a user searches for something that doesn't exist? (e.g. 100 kcal Sweet Veg Italian)
+A: In traditional search systems, this returns "No results found" which is a poor 
+   user experience. In our system, the Inference Engine starts executing fallback 
+   rules. In this case:
+   - Rule 1 fails (no Veg Italian Sweet <= 100 kcal)
+   - Rule 2 fails (no Veg Italian Sweet <= 125 kcal)
+   - Rule 3 fails (no Veg Italian Any Taste <= 100 kcal)
+   - Rule 4 fails (no Veg Any Cuisine Sweet <= 100 kcal)
+   - Rule 5 fails (no Veg Any Cuisine Any Taste <= 100 kcal)
+   - Rule 6 triggers and returns the absolute lowest calorie Veg recipe on record 
+     (e.g., "Spicy Tomato Bruschetta" at 150 kcal).
+   The user gets a recommendation and sees the entire reasoning path transparently 
+   in the "Trace Logs" terminal panel.
+
+Q4: How does the session-based authentication work?
+A: Flask stores session data in an encrypted browser cookie using its `session` 
+   interface. The cookie is signed cryptographically on the server using `app.secret_key`. 
+   When logging in, we verify the hardcoded credentials (`admin` / `admin`). 
+   If they match, we set `session['logged_in'] = True`. Secure pages verify the 
+   presence of this flag, preventing access from unauthorized clients.
+
+Q5: What is the purpose of the "Scientific Backing" field?
+A: In health-oriented recommendations, offering nutrition details without evidence 
+   lacks authority. The "Scientific Backing" field provides the nutritional science 
+   behind the recipe (e.g., how capsaicin helps metabolism, how agar-agar serves 
+   as soluble fiber, or how combining Vitamin C with Calcium enhances absorption). 
+   This builds trust and ensures the expert system maintains medical/dietary credibility.
+
+Q6: How did you implement responsive design in CSS?
+A: We used CSS Custom Variables (CSS variables) for design consistency, and CSS 
+   Media Queries (`@media (max-width: 968px)`) to rearrange columns. For instance, 
+   the main layout uses a two-column CSS grid on desktop (`grid-template-columns: 1.1fr 1.9fr`) 
+   which automatically snaps to a single-column layout on smaller screens.
+================================================================================
