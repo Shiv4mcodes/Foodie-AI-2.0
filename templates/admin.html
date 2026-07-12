@@ -9,10 +9,10 @@
 </head>
 <body>
     <header>
-        <a href="/" class="logo-container">
+        <div class="logo-container">
             <span class="logo-icon">🥗</span>
             <div class="logo-text">Foodie-AI<span>2.0</span></div>
-        </a>
+        </div>
         <div class="nav-links">
             <a href="/" style="margin-right: 0.5rem;" id="nav-home-link">View Site</a>
             <a href="/logout" id="btn-logout">Logout ➔</a>
@@ -61,28 +61,6 @@
                             <option value="Sweet">Sweet</option>
                         </select>
                     </div>
-                </div>
-
-                <!-- Macro Nutrition Fields -->
-                <label class="form-label">Macronutrients</label>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.8rem;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <input type="number" id="protein" class="form-input" min="0" placeholder="Prot(g)" title="Protein (grams)" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <input type="number" id="fiber" class="form-input" min="0" placeholder="Fib(g)" title="Fiber (grams)" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <input type="number" id="carbs" class="form-input" min="0" placeholder="Carb(g)" title="Carbs (grams)" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <input type="number" id="fat" class="form-input" min="0" placeholder="Fat(g)" title="Fat (grams)" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="health_goals" class="form-label">Health Goals (comma-separated)</label>
-                    <input type="text" id="health_goals" class="form-input" placeholder="e.g. Weight Loss, Heart-Healthy, Diabetes-Friendly, Muscle Gain" required>
                 </div>
 
                 <div class="form-group">
